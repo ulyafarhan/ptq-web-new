@@ -27,14 +27,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandLogo(fn () => new HtmlString('
-                <div class="flex items-center gap-x-3">
-                    <img src="' . asset('images/logo-ptq.svg') . '" alt="Logo" class="h-10 w-10 object-contain dark:invert">
-                    <span class="text-xl font-bold text-gray-900 dark:text-white">
-                        UKM PTQ
-                    </span>
-                </div>
-            '))
+            ->brandName('UKM PTQ Admin')
+            ->brandLogo(fn () => view('vendor.filament.components.brand'))
+            ->brandLogoHeight('3rem')
             ->favicon(asset('images/logo-ptq.svg'))
             ->sidebarCollapsibleOnDesktop(false) 
             ->colors([

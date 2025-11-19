@@ -10,7 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class PostResource extends Resource
 {
@@ -18,7 +18,7 @@ class PostResource extends Resource
     protected static ?string $pluralModelLabel = 'Data Berita';
     protected static ?string $navigationLabel = 'Berita';
     protected static ?string $navigationGroup = 'Manajemen Konten';
-    protected static ?string $navigationIcon = 'heroicon-o-newspaper'; 
+    protected static ?string $navigationIcon = 'heroicon-o-newspaper';
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
@@ -31,6 +31,11 @@ class PostResource extends Resource
                             ->schema([
                                 Forms\Components\TextInput::make('title')
                                     ->required()
+                                    ->maxLength(255)
+                                    ->regex('/^[a-zA-Z0-9\s\-\.\,\?\!\:\(\)\'\"\&\/]+$/') 
+                                    ->validationMessages([
+                                        'regex' => 'Judul mengandung karakter ilegal (< > { } tidak diizinkan).',
+                                    ])
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(fn (string $operation, $state, Forms\Set $set) => 
                                         $operation === 'create' ? $set('slug', Str::slug($state)) : null
@@ -38,14 +43,21 @@ class PostResource extends Resource
                                 
                                 Forms\Components\TextInput::make('slug')
                                     ->required()
+                                    ->maxLength(255)
                                     ->unique(Post::class, 'slug', ignoreRecord: true),
 
                                 Forms\Components\RichEditor::make('content')
                                     ->required()
                                     ->columnSpanFull()
-                                    ->fileAttachmentsDirectory('posts/content') // Folder penyimpanan gambar
-                                    ->fileAttachmentsVisibility('public') // Agar bisa diakses publik
-                                    ->label('Konten Berita'),
+                                    ->label('Konten Berita')
+                                    ->toolbarButtons([
+                                        'bold', 'italic', 'strike', 'link', 'bulletList', 'orderedList', 
+                                        'h2', 'h3', 'blockquote', 'undo', 'redo', 'attachFiles'
+                                    ])
+                                    // PERBAIKAN: Hapus method yang tidak valid
+                                    ->fileAttachmentsDisk('public')
+                                    ->fileAttachmentsDirectory('posts/content')
+                                    ->fileAttachmentsVisibility('public'),
                             ]),
                     ])->columnSpan(2),
 
@@ -53,12 +65,17 @@ class PostResource extends Resource
                     ->schema([
                         Forms\Components\Section::make('Media')
                             ->schema([
-                                Forms\Components\SpatieMediaLibraryFileUpload::make('cover')
+                                SpatieMediaLibraryFileUpload::make('cover')
                                     ->collection('default')
                                     ->image()
-                                    ->imageEditor(),
+                                    ->imageEditor()
+                                    ->maxSize(5120) // 5MB
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                    ->rules(['mimes:jpeg,png,webp']) 
+                                    ->directory('posts/covers')
+                                    ->preserveFilenames(false), 
                             ]),
-                            
+                        
                         Forms\Components\Section::make('Publikasi')
                             ->schema([
                                 Forms\Components\Select::make('status')
@@ -67,14 +84,11 @@ class PostResource extends Resource
                                         'published' => 'Published',
                                     ])
                                     ->default('draft')
-                                    ->required(),
-                                    
+                                    ->required()
+                                    ->native(false),
+                                
                                 Forms\Components\DateTimePicker::make('published_at')
                                     ->default(now()),
-                                    
-                                // Hidden field untuk user_id
-                                Forms\Components\Hidden::make('user_id')
-                                    ->default(fn () => Auth::id()),
                             ]),
                     ])->columnSpan(1),
             ])->columns(3);
@@ -88,21 +102,22 @@ class PostResource extends Resource
                     ->collection('default')
                     ->height(50)
                     ->label('Cover'),
-                    
+                
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()
                     ->limit(40)
-                    ->description(fn (Post $record): string => $record->slug) // Tampilkan slug di bawah judul
+                    ->description(fn (Post $record): string => $record->slug)
                     ->label('Judul'),
-                    
+                
                 Tables\Columns\TextColumn::make('status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'draft' => 'gray',
                         'published' => 'success',
+                        default => 'gray',
                     })
                     ->label('Status'),
-                    
+                
                 Tables\Columns\TextColumn::make('published_at')
                     ->dateTime('d M Y, H:i')
                     ->sortable()

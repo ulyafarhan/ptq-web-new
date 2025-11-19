@@ -10,6 +10,8 @@ use Filament\Forms;
 use Filament\Pages\Page;
 use Filament\Notifications\Notification;
 use Filament\Actions\Action;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class ManageSiteSettings extends Page implements HasForms
 {
@@ -28,10 +30,10 @@ class ManageSiteSettings extends Page implements HasForms
     // 1. Saat Halaman Dibuka (Mount)
     public function mount(): void
     {
-        // Ambil semua setting dari DB dan jadikan array [key => value]
+        // SECURITY: Pastikan hanya Super Admin yang bisa akses (Layer Tambahan)
+        // abort_unless(Auth::user()->hasRole('super_admin'), 403);
+
         $settings = SiteSetting::all()->pluck('value', 'key')->toArray();
-        
-        // Isi form dengan data tersebut
         $this->form->fill($settings);
     }
 
@@ -41,7 +43,7 @@ class ManageSiteSettings extends Page implements HasForms
         return $form
             ->schema([
                 Forms\Components\Tabs::make('Settings')
-                    ->tabs([ // <--- PENTING: Gunakan method ->tabs([...])
+                    ->tabs([
                         
                         // TAB 1: HERO SECTION
                         Forms\Components\Tabs\Tab::make('Halaman Depan')
@@ -50,11 +52,20 @@ class ManageSiteSettings extends Page implements HasForms
                                 Forms\Components\TextInput::make('hero_title')
                                     ->label('Judul Utama (Hero Title)')
                                     ->helperText('Teks besar di halaman awal website.')
-                                    ->required(),
-                                    
+                                    ->required()
+                                    ->maxLength(100)
+                                    // SECURITY: Hanya huruf, angka, dan tanda baca aman. Dilarang HTML tags.
+                                    ->regex('/^[a-zA-Z0-9\s\-\,\.\!\?]+$/')
+                                    ->validationMessages([
+                                        'regex' => 'Judul mengandung karakter terlarang (HTML tidak diizinkan).',
+                                    ]),
+                                
                                 Forms\Components\Textarea::make('hero_desc')
                                     ->label('Deskripsi Singkat')
-                                    ->rows(3),
+                                    ->rows(3)
+                                    ->maxLength(500)
+                                    // SECURITY: Mencegah skrip injeksi
+                                    ->regex('/^[^<>]*$/'),
                             ]),
 
                         // TAB 2: PENDAFTARAN
@@ -62,10 +73,12 @@ class ManageSiteSettings extends Page implements HasForms
                             ->icon('heroicon-o-user-plus')
                             ->schema([
                                 Forms\Components\TextInput::make('register_url')
-                                    ->label('Link Pendaftaran Eksternal (Opsional)')
+                                    ->label('Link Pendaftaran Eksternal')
                                     ->placeholder('https://forms.google.com/...')
                                     ->helperText('Kosongkan jika ingin menggunakan pendaftaran internal website.')
-                                    ->url(),
+                                    ->url() // SECURITY: Validasi format URL
+                                    ->maxLength(255)
+                                    ->activeUrl(), // SECURITY: Cek apakah URL benar-benar aktif (DNS Check)
                             ]),
 
                         // TAB 3: KONTAK
@@ -74,32 +87,47 @@ class ManageSiteSettings extends Page implements HasForms
                             ->schema([
                                 Forms\Components\TextInput::make('contact_email')
                                     ->label('Email Resmi')
-                                    ->email(),
+                                    ->email() // Validasi format email (otomatis izinkan @ dan .)
+                                    ->required()
+                                    ->maxLength(100),
                                     
                                 Forms\Components\TextInput::make('contact_address')
-                                    ->label('Alamat Sekretariat'),
+                                    ->label('Alamat Sekretariat')
+                                    ->maxLength(255)
+                                    // REVISI: Izinkan / (nomor rumah), , (koma), . (titik), ' (nama jalan)
+                                    ->regex('/^[a-zA-Z0-9\s\-\.\,\/\'\(\)]+$/'), 
                                     
                                 Forms\Components\Grid::make(2)
                                     ->schema([
                                         Forms\Components\TextInput::make('social_instagram')
-                                            ->label('Link Instagram')
-                                            ->prefix('instagram.com/'),
-                                        
+                                            ->label('Username Instagram')
+                                            ->prefix('instagram.com/')
+                                            ->placeholder('username_ptq')
+                                            // REVISI: Izinkan @ di depan, titik, dan underscore
+                                            ->regex('/^@?[a-zA-Z0-9\.\_]+$/')
+                                            ->helperText('Boleh pakai @ atau tidak.'),
+                                            
                                         Forms\Components\TextInput::make('social_whatsapp')
-                                            ->label('Link Whatsapp')
-                                            ->prefix('wa.me/'),
-                                        
+                                            ->label('Nomor Whatsapp')
+                                            ->prefix('wa.me/')
+                                            ->placeholder('62812xxx')
+                                            // REVISI: Izinkan tanda plus (+) untuk kode negara
+                                            ->regex('/^[0-9\+]+$/'), 
+                                            
                                         Forms\Components\TextInput::make('social_youtube')
-                                            ->label('Link Youtube')
-                                            ->prefix('youtube.com/'),  
-                                        
+                                            ->label('Channel Youtube')
+                                            ->prefix('youtube.com/')
+                                            // Youtube handle bisa ada tanda hubung dan @
+                                            ->regex('/^@?[a-zA-Z0-9\.\_\-]+$/'),
+                                            
                                         Forms\Components\TextInput::make('social_tiktok')
-                                            ->label('Link TikTok')
-                                            ->prefix('tiktok.com/'),
+                                            ->label('Username TikTok')
+                                            ->prefix('tiktok.com/')
+                                            ->regex('/^@?[a-zA-Z0-9\.\_\-]+$/'),
                                     ])
                             ]),
                     ])
-                    ->columnSpanFull(), // Agar Tabs melebar penuh
+                    ->columnSpanFull(),
             ])
             ->statePath('data');
     }
@@ -107,31 +135,45 @@ class ManageSiteSettings extends Page implements HasForms
     // 3. Action Simpan (Submit)
     public function save(): void
     {
-        // Ambil data dari form
-        $state = $this->form->getState();
+        try {
+            $state = $this->form->getState();
 
-        // Loop dan simpan ke database (Update or Create)
-        foreach ($state as $key => $value) {
-            SiteSetting::updateOrCreate(
-                ['key' => $key],   
-                ['value' => $value] 
-            );
+            // SECURITY: Database Transaction
+            // Menjamin integritas data. Jika satu gagal, semua batal.
+            DB::transaction(function () use ($state) {
+                foreach ($state as $key => $value) {
+                    // SECURITY: Sanitasi lapis terakhir sebelum masuk DB
+                    // Membersihkan tag HTML bandel yang mungkin lolos validasi
+                    $cleanValue = is_string($value) ? strip_tags($value) : $value;
+
+                    SiteSetting::updateOrCreate(
+                        ['key' => $key],   
+                        ['value' => $cleanValue] 
+                    );
+                }
+            });
+
+            Notification::make()
+                ->title('Pengaturan aman tersimpan')
+                ->success()
+                ->send();
+
+        } catch (\Exception $e) {
+            Notification::make()
+                ->title('Gagal menyimpan pengaturan')
+                ->body('Terjadi kesalahan sistem: ' . $e->getMessage())
+                ->danger()
+                ->send();
         }
-
-        // Tampilkan Notifikasi Sukses
-        Notification::make()
-            ->title('Pengaturan berhasil disimpan')
-            ->success()
-            ->send();
     }
     
-    // Definisi Tombol Action di Header Halaman (Opsional, biar ada tombol Save di atas juga)
     protected function getHeaderActions(): array
     {
         return [
             Action::make('save')
                 ->label('Simpan Perubahan')
-                ->submit('save'), // Submit form 'save'
+                ->icon('heroicon-o-check-circle')
+                ->action('save'),
         ];
     }
 }

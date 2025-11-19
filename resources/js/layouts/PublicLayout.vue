@@ -60,7 +60,7 @@ const isMobileOpen = ref(false);
                         <img src="/images/logo-ptq.svg" alt="Logo PTQ Unimal" class="h-10 w-auto group-hover:scale-105 transition-transform duration-300">
                         <div class="flex flex-col">
                             <span class="text-lg font-heading font-bold leading-none text-slate-900 tracking-tight">UKM PTQ</span>
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Universitas Malikussaleh</span>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-emerald-700">Universitas Malikussaleh</span>
                         </div>
                     </Link>
 
@@ -68,7 +68,7 @@ const isMobileOpen = ref(false);
                         <template v-for="link in navLinks" :key="link.route">
                             <Link :href="route(link.route)">
                                 <Button variant="ghost" 
-                                    :class="['text-sm font-medium px-4 py-2 rounded-full hover:bg-emerald-50 hover:text-emerald-700 transition-colors', 
+                                    :class="['text-sm font-medium px-4 py-2 rounded-full text-slate-900 hover:bg-emerald-50 hover:text-emerald-700 transition-colors', 
                                     route().current(link.active) ? 'bg-emerald-50 text-emerald-700 font-semibold' : 'text-slate-600']">
                                     {{ link.label }}
                                 </Button>
@@ -98,7 +98,7 @@ const isMobileOpen = ref(false);
 
                     <div class="hidden md:flex items-center gap-4">
                         <div class="h-6 w-px bg-slate-200/60"></div>
-                        <Link href="/admin/login" class="text-sm font-medium text-slate-500 hover:text-emerald-700 transition-colors">
+                        <Link href="/admin/login" class="text-sm font-medium text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
                             Masuk
                         </Link>
                         

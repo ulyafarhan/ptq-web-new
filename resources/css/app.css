@@ -18,3 +18,15 @@ body {
 ::selection {
     @apply bg-emerald-500/20 text-emerald-900;
 }
+
+@layer utilities {
+    /* Utility untuk menyembunyikan Scrollbar tapi tetap bisa di-scroll */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .no-scrollbar {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+}

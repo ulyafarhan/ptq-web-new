@@ -3,9 +3,9 @@
 namespace App\Providers;
 use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
-
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
-
+use Illuminate\Support\Facades\URL;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -21,6 +21,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // KEAMANAN: Force HTTPS di Production (Anti-Man-in-the-Middle)
+        if ($this->app->environment('production')) {
+            URL::forceScheme('https');
+        }
+
+        // OPTIMASI & KEAMANAN: Strict Mode
+        // 1. Mencegah Lazy Loading (N+1 Problem)
+        // 2. Mencegah pengisian atribut yang tidak ada di fillable (Mass Assignment Protection)
+        // 3. Mencegah akses atribut yang tidak ada (Typos)
+        Model::shouldBeStrict(!$this->app->environment('production'));
+
+        // KEAMANAN: Unguard hanya boleh jika Anda benar-benar tahu apa yang Anda lakukan.
+        // Default Laravel 12 biasanya aman, tapi kita pastikan fillable terdefinisi di setiap model.
+
         // Mengatur batas panjang string database (opsional, tapi bagus untuk MySQL lama)
         Schema::defaultStringLength(191);
 

@@ -1,4 +1,8 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
+import forms from '@tailwindcss/forms';
+import typography from '@tailwindcss/typography';
+// 1. Import helper plugin di sini
+const plugin = require('tailwindcss/plugin');
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -21,16 +25,31 @@ export default {
                 brand: {
                     50: '#ecfdf5',
                     100: '#d1fae5',
-                    500: '#10b981', // Emerald-500
-                    600: '#059669', // Emerald-600
-                    900: '#064e3b', // Emerald-900
+                    500: '#10b981',
+                    600: '#059669',
+                    900: '#064e3b',
                 }
             }
         },
     },
 
     plugins: [
-        require('@tailwindcss/typography'),
-        require('@tailwindcss/forms'),
+        typography,
+        forms,
+        
+        plugin(function({ addUtilities }) {
+            addUtilities({
+                '.no-scrollbar': {
+                    /* Firefox */
+                    'scrollbar-width': 'none',
+                    /* IE and Edge */
+                    '-ms-overflow-style': 'none',
+                    /* Chrome, Safari and Opera */
+                    '&::-webkit-scrollbar': {
+                        display: 'none',
+                    },
+                },
+            });
+        }),
     ],
 };

@@ -19,11 +19,10 @@ class PageController extends Controller
      */
     public function home()
     {
-        // Ambil semua setting dari tabel site_settings
-        // Hasilnya array: ['hero_title' => '...', 'register_url' => '...']
+        // 1. Ambil Settings (Konfigurasi Global)
         $settings = SiteSetting::pluck('value', 'key')->toArray();
 
-        // Ambil 3 berita terbaru yang statusnya 'published'
+        // 2. Ambil Berita Terbaru (Latest Posts)
         $latestPosts = Post::where('status', 'published')
             ->latest('published_at')
             ->take(3)
@@ -34,19 +33,45 @@ class PageController extends Controller
                 'slug' => $post->slug,
                 'excerpt' => Str::limit(strip_tags($post->content), 120),
                 'published_at' => $post->published_at->format('d M Y'),
-                'cover' => $post->getFirstMediaUrl('default', 'thumb'),
+                // Menggunakan placeholder jika tidak ada cover
+                'cover' => $post->getFirstMediaUrl('default') ?: asset('images/placeholder-image.jpg'),
             ]);
 
+        // 3. Ambil Struktur Pengurus (Members) - BARU
+        $structures = Structure::where('is_active', true)
+            ->orderBy('level', 'asc')      // Level 1 (Ketua) duluan
+            ->orderBy('sort_order', 'asc') // Lalu urutan manual
+            ->get()
+            ->map(fn ($item) => [
+                'id' => $item->id,
+                'name' => $item->name,
+                'position' => $item->position,
+                'group_type' => $item->group_type,
+                'division_name' => $item->division_name,
+                // Ambil URL foto atau fallback ke default avatar
+                'image' => $item->getFirstMediaUrl('default') 
+                    ? $item->getFirstMediaUrl('default') 
+                    : asset('images/default-avatar.png'),
+            ]);
+
+        // 4. Return ke Inertia (Frontend)
         return Inertia::render('Home', [
             'latestPosts' => $latestPosts,
-            // Kirim data konfigurasi dinamis ke Frontend
+            'structures' => $structures, // <-- Data Pengurus dikirim di sini
+            
+            // Data Konfigurasi Dinamis
             'siteConfig' => [
-                'hero_title' => $settings['hero_title'] ?? null, // Jika null, frontend akan pakai default
+                'hero_title' => $settings['hero_title'] ?? null,
                 'hero_desc' => $settings['hero_desc'] ?? null,
                 'register_url' => $settings['register_url'] ?? null,
                 'contact' => [
                     'email' => $settings['contact_email'] ?? 'ukmptq@unimal.ac.id',
                     'address' => $settings['contact_address'] ?? 'Sekretariat UKM PTQ',
+                    // Tambahkan Sosmed agar Footer dinamis juga
+                    'instagram' => $settings['social_instagram'] ?? null,
+                    'whatsapp' => $settings['social_whatsapp'] ?? null,
+                    'youtube' => $settings['social_youtube'] ?? null,
+                    'tiktok' => $settings['social_tiktok'] ?? null,
                 ]
             ]
         ]);

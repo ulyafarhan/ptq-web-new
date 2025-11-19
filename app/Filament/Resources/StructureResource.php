@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Forms\Get;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 
 class StructureResource extends Resource
 {
@@ -26,30 +27,41 @@ class StructureResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Section::make('Profil Pengurus')
+                    ->description('Informasi biodata pengurus.')
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->required()
-                            ->maxLength(255)
-                            ->label('Nama Lengkap'),
-                            
+                            ->maxLength(100)
+                            ->label('Nama Lengkap')
+                            ->regex('/^[a-zA-Z\s\.\,\'\-]+$/') 
+                            ->validationMessages([
+                                'regex' => 'Nama hanya boleh mengandung huruf, titik, koma, strip, dan petik satu.',
+                            ]),
+                        
                         Forms\Components\TextInput::make('position')
                             ->label('Jabatan Visual')
-                            ->placeholder('Contoh: Ketua Umum / Staff Humas')
-                            ->required(),
+                            ->placeholder('Contoh: Ketua Umum')
+                            ->required()
+                            ->maxLength(100)
+                            ->regex('/^[a-zA-Z0-9\s\-\(\)\.]+$/'),
 
-                        Forms\Components\SpatieMediaLibraryFileUpload::make('photo')
-                            ->collection('default') // Default collection Spatie
+                        SpatieMediaLibraryFileUpload::make('photo')
+                            ->collection('default')
+                            ->label('Foto Profil')
                             ->image()
-                            ->imageEditor() // Fitur crop
-                            ->directory('structures') // Folder di storage
-                            ->maxSize(2048), // Max 2MB
+                            ->imageEditor()
+                            ->directory('structures')
+                            ->maxSize(2048)
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                            ->rules(['mimes:jpeg,png,webp'])
+                            ->preserveFilenames(false)
+                            ->columnSpanFull(),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Pengaturan Posisi (Logika)')
+                Forms\Components\Section::make('Pengaturan Posisi & Hierarki')
                     ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([
-                                // LOGIC SELECTOR
                                 Forms\Components\Select::make('group_type')
                                     ->label('Tipe Kelompok')
                                     ->options([
@@ -57,35 +69,40 @@ class StructureResource extends Resource
                                         'division' => 'Divisi / Departemen',
                                     ])
                                     ->default('division')
-                                    ->live() // PENTING: Agar form bereaksi live
-                                    ->required(),
+                                    ->live() 
+                                    ->required()
+                                    ->native(false),
 
-                                // MUNCUL HANYA JIKA DIVISI
                                 Forms\Components\TextInput::make('division_name')
                                     ->label('Nama Divisi')
                                     ->placeholder('Contoh: Divisi Humas')
-                                    ->hidden(fn (Forms\Get $get) => $get('group_type') !== 'division')
-                                    ->required(fn (Forms\Get $get) => $get('group_type') === 'division')
-                                    ->columnSpan(1),
+                                    ->visible(fn (Get $get) => $get('group_type') === 'division')
+                                    ->required(fn (Get $get) => $get('group_type') === 'division')
+                                    ->maxLength(100)
+                                    ->regex('/^[a-zA-Z0-9\s\-\&]+$/'),
                             ]),
 
                         Forms\Components\Grid::make(2)
                             ->schema([
                                 Forms\Components\Select::make('level')
-                                    ->label('Hierarki Jabatan')
+                                    ->label('Level Hierarki')
+                                    ->helperText('Level 1 (Ketua) akan tampil paling atas.')
                                     ->options([
-                                        1 => 'Ketua / Koordinator (Top)',
-                                        2 => 'Sekretaris / Bendahara (Mid)',
-                                        3 => 'Anggota Staff (Low)',
+                                        1 => 'Level 1 - Ketua / Pimpinan',
+                                        2 => 'Level 2 - Sekretaris / Bendahara',
+                                        3 => 'Level 3 - Koordinator Divisi',
+                                        4 => 'Level 4 - Anggota Staff',
                                     ])
-                                    ->default(3)
-                                    ->required(),
-                                    
+                                    ->default(4)
+                                    ->required()
+                                    ->native(false),
+                                
                                 Forms\Components\TextInput::make('sort_order')
                                     ->numeric()
                                     ->default(0)
                                     ->label('Urutan Prioritas')
-                                    ->helperText('Angka lebih kecil tampil lebih dulu'),
+                                    ->minValue(0)
+                                    ->maxValue(999),
                                     
                                 Forms\Components\Toggle::make('is_active')
                                     ->default(true)
@@ -106,28 +123,35 @@ class StructureResource extends Resource
                     ->collection('default')
                     ->circular()
                     ->label('Foto'),
-                    
+                
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->weight('bold')
                     ->label('Nama'),
-                    
+                
                 Tables\Columns\TextColumn::make('position')
                     ->label('Jabatan')
-                    ->searchable(),
+                    ->searchable()
+                    ->limit(30),
 
                 Tables\Columns\TextColumn::make('group_type')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'teras' => 'warning', 
                         'division' => 'success', 
+                        default => 'gray',
                     })
-                    ->formatStateUsing(fn (string $state): string => ucfirst($state))
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'teras' => 'Inti',
+                        'division' => 'Divisi',
+                        default => $state,
+                    })
                     ->label('Tipe'),
 
                 Tables\Columns\TextColumn::make('division_name')
                     ->label('Divisi')
-                    ->placeholder('-'), 
+                    ->placeholder('-')
+                    ->limit(20),
                     
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->label('Aktif'),
@@ -139,6 +163,13 @@ class StructureResource extends Resource
                         'division' => 'Divisi',
                     ])
                     ->label('Filter Tipe'),
+                
+                Tables\Filters\SelectFilter::make('is_active')
+                    ->label('Status')
+                    ->options([
+                        '1' => 'Aktif',
+                        '0' => 'Tidak Aktif',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

@@ -120,7 +120,7 @@ const missions = [
                         <div class="absolute -left-[9px] top-2 w-4 h-4 rounded-full bg-white border-4 border-slate-300 group-hover:border-emerald-500 group-hover:scale-125 transition-all duration-300 z-10"></div>
                         
                         <div class="flex flex-col md:flex-row md:items-start gap-4 md:gap-8 p-6 rounded-2xl hover:bg-white hover:shadow-lg transition-all duration-300 border border-transparent hover:border-slate-100">
-                            <span class="text-4xl md:text-5xl font-heading font-bold text-emerald-600 group-hover:text-emerald-600/20 transition-colors md:w-32 flex-shrink-0 leading-none">
+                            <span class="flex-shrink-0 w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold font-heading text-lg">
                                 {{ item.year }}
                             </span>
                             
