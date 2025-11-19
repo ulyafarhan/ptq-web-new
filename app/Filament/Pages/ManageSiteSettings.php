@@ -41,8 +41,9 @@ class ManageSiteSettings extends Page implements HasForms
         return $form
             ->schema([
                 Forms\Components\Tabs::make('Settings')
-                    ->schema([
-                        // TAB 1: HERO SECTION (BERANDA)
+                    ->tabs([ // <--- PENTING: Gunakan method ->tabs([...])
+                        
+                        // TAB 1: HERO SECTION
                         Forms\Components\Tabs\Tab::make('Halaman Depan')
                             ->icon('heroicon-o-home')
                             ->schema([
@@ -56,18 +57,18 @@ class ManageSiteSettings extends Page implements HasForms
                                     ->rows(3),
                             ]),
 
-                        // TAB 2: PENDAFTARAN (LOGIC GFORM)
-                        Forms\Components\Tabs\Tab::make('Pendaftaran & Rekrutmen')
+                        // TAB 2: PENDAFTARAN
+                        Forms\Components\Tabs\Tab::make('Pendaftaran')
                             ->icon('heroicon-o-user-plus')
                             ->schema([
                                 Forms\Components\TextInput::make('register_url')
                                     ->label('Link Pendaftaran Eksternal (Opsional)')
                                     ->placeholder('https://forms.google.com/...')
-                                    ->helperText('Jika diisi, tombol "Daftar" akan membuka link ini (GForm). Jika kosong, akan membuka halaman Register bawaan website.')
-                                    ->url(), // Validasi format URL
+                                    ->helperText('Kosongkan jika ingin menggunakan pendaftaran internal website.')
+                                    ->url(),
                             ]),
 
-                        // TAB 3: KONTAK & SOSMED
+                        // TAB 3: KONTAK
                         Forms\Components\Tabs\Tab::make('Kontak & Footer')
                             ->icon('heroicon-o-phone')
                             ->schema([
@@ -84,14 +85,23 @@ class ManageSiteSettings extends Page implements HasForms
                                             ->label('Link Instagram')
                                             ->prefix('instagram.com/'),
                                         
-                                        Forms\Components\TextInput::make('social_facebook')
-                                            ->label('Link Facebook')
-                                            ->prefix('facebook.com/'),
+                                        Forms\Components\TextInput::make('social_whatsapp')
+                                            ->label('Link Whatsapp')
+                                            ->prefix('wa.me/'),
+                                        
+                                        Forms\Components\TextInput::make('social_youtube')
+                                            ->label('Link Youtube')
+                                            ->prefix('youtube.com/'),  
+                                        
+                                        Forms\Components\TextInput::make('social_tiktok')
+                                            ->label('Link TikTok')
+                                            ->prefix('tiktok.com/'),
                                     ])
                             ]),
                     ])
+                    ->columnSpanFull(), // Agar Tabs melebar penuh
             ])
-            ->statePath('data'); // Binding form ke property $data
+            ->statePath('data');
     }
 
     // 3. Action Simpan (Submit)

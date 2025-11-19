@@ -14,15 +14,16 @@ use Illuminate\Support\Str;
 class PageController extends Controller
 {
     /**
-     * Halaman Beranda (Home)
-     * Mengambil data setting global & berita terbaru.
+     * 1. HALAMAN BERANDA (HOME)
+     * Mengambil data Pengaturan Website (SiteSetting) dan Berita Terbaru.
      */
     public function home()
     {
-        // Ambil Setting dari DB
+        // Ambil semua setting dari tabel site_settings
+        // Hasilnya array: ['hero_title' => '...', 'register_url' => '...']
         $settings = SiteSetting::pluck('value', 'key')->toArray();
 
-        // Ambil 3 Berita Terbaru
+        // Ambil 3 berita terbaru yang statusnya 'published'
         $latestPosts = Post::where('status', 'published')
             ->latest('published_at')
             ->take(3)
@@ -38,10 +39,10 @@ class PageController extends Controller
 
         return Inertia::render('Home', [
             'latestPosts' => $latestPosts,
-            // Data Hero & Kontak Dinamis
+            // Kirim data konfigurasi dinamis ke Frontend
             'siteConfig' => [
-                'hero_title' => $settings['hero_title'] ?? 'Membumikan Al-Qur\'an Di Kampus Jantong Hatee',
-                'hero_desc' => $settings['hero_desc'] ?? 'Wadah pengembangan minat dan bakat mahasiswa Universitas Malikussaleh.',
+                'hero_title' => $settings['hero_title'] ?? null, // Jika null, frontend akan pakai default
+                'hero_desc' => $settings['hero_desc'] ?? null,
                 'register_url' => $settings['register_url'] ?? null,
                 'contact' => [
                     'email' => $settings['contact_email'] ?? 'ukmptq@unimal.ac.id',
@@ -52,7 +53,8 @@ class PageController extends Controller
     }
 
     /**
-     * Halaman Struktur Organisasi
+     * 2. HALAMAN STRUKTUR ORGANISASI
+     * Mengambil data Pengurus Teras dan Divisi.
      */
     public function structure()
     {
@@ -68,11 +70,11 @@ class PageController extends Controller
                 'photo' => $item->getFirstMediaUrl('default', 'thumb'),
             ]);
 
-        // Divisi (Grouped)
+        // Divisi (Dikelompokkan berdasarkan nama divisi)
         $divisions = Structure::where('is_active', true)
             ->where('group_type', 'division')
             ->orderBy('division_name')
-            ->orderBy('level')
+            ->orderBy('level') // Ketua dulu (level 1), baru anggota
             ->orderBy('sort_order')
             ->get()
             ->groupBy('division_name')
@@ -94,28 +96,33 @@ class PageController extends Controller
     }
 
     /**
-     * Halaman Sejarah & Visi Misi
+     * 3. HALAMAN SEJARAH & VISI MISI
+     * Mengambil data Milestone (Sejarah).
      */
     public function history()
     {
-        // Ambil Data Milestone dari DB
-        $milestones = Milestone::orderBy('year', 'asc')->get()->map(fn($m) => [
-            'year' => $m->year,
-            'title' => $m->title,
-            'desc' => $m->description,
-        ]);
+        // Ambil Milestone urut tahun
+        $milestones = Milestone::orderBy('year', 'asc')
+            ->orderBy('sort_order', 'asc')
+            ->get()
+            ->map(fn($m) => [
+                'year' => $m->year,
+                'title' => $m->title,
+                'desc' => $m->description,
+            ]);
 
         return Inertia::render('Profile/History', [
-            'milestones' => $milestones // Kirim ke Vue
+            'milestones' => $milestones
         ]);
     }
 
     /**
-     * Halaman Program Kerja
+     * 4. HALAMAN PROGRAM KERJA
+     * Mengambil data Program dan mengelompokkannya (Rutin/Bulanan/Tahunan).
      */
     public function programs()
     {
-        // Ambil Program, Mapping Data, dan Grouping by Tipe
+        $settings = SiteSetting::pluck('value', 'key')->toArray();
         $programs = Program::where('is_active', true)
             ->orderBy('created_at', 'desc')
             ->get()
@@ -124,34 +131,38 @@ class PageController extends Controller
                 'desc' => $p->description,
                 'schedule' => $p->schedule,
                 'location' => $p->location,
-                'type' => $p->type, // rutin, bulanan, tahunan
+                'type' => $p->type, // 'rutin', 'bulanan', 'tahunan'
                 'status' => $p->status,
                 'month' => $p->created_at->format('F Y'),
-                'image' => $p->getFirstMediaUrl('default'), // Gambar Poster
-                // Default styling fallback
+                // Ambil gambar poster program
+                'image' => $p->getFirstMediaUrl('default'), 
+                // Fallback icon/warna (bisa juga disimpan di DB jika mau lebih dinamis)
                 'icon' => 'book-open', 
                 'color' => 'bg-emerald-100 text-emerald-600'
             ])
-            ->groupBy('type');
+            ->groupBy('type'); // Hasilnya: { rutin: [...], bulanan: [...], ... }
 
         return Inertia::render('Profile/Programs', [
-            'programs' => $programs
+            'programs' => $programs,
+            'scheduleUrl' => $settings['schedule_file_url'] ?? null,
         ]);
     }
 
     /**
-     * Halaman Index Berita (Search & Pagination)
+     * 5. HALAMAN ARSIP BERITA (INDEX)
+     * Fitur Pencarian dan Pagination.
      */
     public function posts(Request $request)
     {
         $query = Post::where('status', 'published');
 
+        // Fitur Search
         if ($request->search) {
             $query->where('title', 'like', '%' . $request->search . '%');
         }
 
         $posts = $query->latest('published_at')
-            ->paginate(9)
+            ->paginate(9) // 9 Berita per halaman
             ->withQueryString()
             ->through(fn($post) => [
                 'id' => $post->id,
@@ -169,10 +180,11 @@ class PageController extends Controller
     }
 
     /**
-     * Halaman Detail Berita
+     * 6. HALAMAN DETAIL BERITA (SHOW)
      */
     public function post(Post $post)
     {
+        // Cegah akses jika status masih draft
         abort_if($post->status !== 'published', 404);
 
         return Inertia::render('Post/Show', [
@@ -181,7 +193,7 @@ class PageController extends Controller
                 'content' => $post->content,
                 'published_at' => $post->published_at->format('d F Y'),
                 'author' => $post->author->name ?? 'Admin',
-                'cover' => $post->getFirstMediaUrl('default', 'banner'),
+                'cover' => $post->getFirstMediaUrl('default', 'banner'), // Gambar ukuran besar
             ]
         ]);
     }

@@ -1,4 +1,4 @@
-import defaultTheme from 'tailwindcss/defaultTheme'; 
+import defaultTheme from 'tailwindcss/defaultTheme';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -12,11 +12,18 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                // Font Body: Plus Jakarta Sans
-                sans: ['"Plus Jakarta Sans"', ...defaultTheme.fontFamily.sans],
-                // Font Heading: Playfair Display
-                serif: ['"Playfair Display"', ...defaultTheme.fontFamily.serif],
+                sans: ['"Inter"', ...defaultTheme.fontFamily.sans],
+                heading: ['"Outfit"', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                brand: {
+                    50: '#ecfdf5',
+                    100: '#d1fae5',
+                    500: '#10b981', // Emerald-500
+                    600: '#059669', // Emerald-600
+                    900: '#064e3b', // Emerald-900
+                }
+            }
         },
     },
 

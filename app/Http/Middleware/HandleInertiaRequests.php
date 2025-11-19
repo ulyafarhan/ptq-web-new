@@ -2,50 +2,42 @@
 
 namespace App\Http\Middleware;
 
-use Illuminate\Foundation\Inspiring;
+use App\Models\SiteSetting; 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
+use function Laravel\Prompts\warning;
+
 class HandleInertiaRequests extends Middleware
 {
-    /**
-     * The root template that's loaded on the first page visit.
-     *
-     * @see https://inertiajs.com/server-side-setup#root-template
-     *
-     * @var string
-     */
     protected $rootView = 'app';
 
-    /**
-     * Determines the current asset version.
-     *
-     * @see https://inertiajs.com/asset-versioning
-     */
     public function version(Request $request): ?string
     {
         return parent::version($request);
     }
 
-    /**
-     * Define the props that are shared by default.
-     *
-     * @see https://inertiajs.com/shared-data
-     *
-     * @return array<string, mixed>
-     */
     public function share(Request $request): array
     {
-        [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
+        $settings = SiteSetting::pluck('value', 'key')->toArray();
 
-        return [
-            ...parent::share($request),
-            'name' => config('app.name'),
-            'quote' => ['message' => trim($message), 'author' => trim($author)],
+        return array_merge(parent::share($request), [
             'auth' => [
                 'user' => $request->user(),
             ],
-            'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-        ];
+
+            'site' => [
+                'hero_title' => $settings['hero_title'] ?? 'UKM PTQ Unimal',
+                'register_url' => $settings['register_url'] ?? null,
+                'contact' => [
+                    'email' => $settings['contact_email'] ?? 'ukmptq@unimal.ac.id',
+                    'address' => $settings['contact_address'] ?? 'Sekretariat UKM PTQ, Universitas Malikussaleh',
+                    'instagram' => $settings['social_instagram'] ?? '#',
+                    'tiktok' => $settings['social_tiktok'] ?? '#',
+                    'youtube' => $settings['social_youtube'] ?? '#',
+                    'whatsapp' => $settings['social_whatsapp'] ?? '#',
+                ]
+            ],
+        ]);
     }
 }
