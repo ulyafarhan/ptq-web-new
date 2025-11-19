@@ -26,90 +26,116 @@ class StructureResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->label('Nama Lengkap'),
                             
                         Forms\Components\TextInput::make('position')
                             ->label('Jabatan Visual')
-                            ->placeholder('Misal: Ketua Umum atau Staff Humas')
+                            ->placeholder('Contoh: Ketua Umum / Staff Humas')
                             ->required(),
 
                         Forms\Components\SpatieMediaLibraryFileUpload::make('photo')
-                            ->collection('default')
+                            ->collection('default') // Default collection Spatie
                             ->image()
-                            ->imageEditor()
-                            ->directory('structures'),
+                            ->imageEditor() // Fitur crop
+                            ->directory('structures') // Folder di storage
+                            ->maxSize(2048), // Max 2MB
                     ])->columns(2),
 
-                Forms\Components\Section::make('Logika Hierarki')
-                    ->description('Tentukan posisi dalam diagram organisasi')
+                Forms\Components\Section::make('Pengaturan Posisi (Logika)')
                     ->schema([
-                        // LOGIC SELECTOR
-                        Forms\Components\Select::make('group_type')
-                            ->options([
-                                'teras' => 'Pengurus Teras (Inti)',
-                                'division' => 'Divisi / Departemen',
-                            ])
-                            ->default('division')
-                            ->live() // PENTING: Agar form refresh saat ini berubah
-                            ->required(),
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                // LOGIC SELECTOR
+                                Forms\Components\Select::make('group_type')
+                                    ->label('Tipe Kelompok')
+                                    ->options([
+                                        'teras' => 'Pengurus Teras (Inti)',
+                                        'division' => 'Divisi / Departemen',
+                                    ])
+                                    ->default('division')
+                                    ->live() // PENTING: Agar form bereaksi live
+                                    ->required(),
 
-                        // MUNCUL HANYA JIKA DIVISI
-                        Forms\Components\TextInput::make('division_name')
-                            ->label('Nama Divisi')
-                            ->placeholder('Misal: Divisi Humas')
-                            ->hidden(fn (Get $get) => $get('group_type') !== 'division')
-                            ->required(fn (Get $get) => $get('group_type') === 'division'),
+                                // MUNCUL HANYA JIKA DIVISI
+                                Forms\Components\TextInput::make('division_name')
+                                    ->label('Nama Divisi')
+                                    ->placeholder('Contoh: Divisi Humas')
+                                    ->hidden(fn (Forms\Get $get) => $get('group_type') !== 'division')
+                                    ->required(fn (Forms\Get $get) => $get('group_type') === 'division')
+                                    ->columnSpan(1),
+                            ]),
 
-                        Forms\Components\Select::make('level')
-                            ->label('Tingkatan')
-                            ->options([
-                                1 => 'Ketua / Koordinator',
-                                2 => 'Sekretaris / Bendahara',
-                                3 => 'Anggota Staff',
-                            ])
-                            ->default(3)
-                            ->required(),
-                            
-                        Forms\Components\TextInput::make('sort_order')
-                            ->numeric()
-                            ->default(0)
-                            ->label('Urutan Prioritas (Angka Kecil di Atas)'),
-                            
-                        Forms\Components\Toggle::make('is_active')
-                            ->default(true)
-                            ->label('Status Aktif'),
-                    ])->columns(2),
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\Select::make('level')
+                                    ->label('Hierarki Jabatan')
+                                    ->options([
+                                        1 => 'Ketua / Koordinator (Top)',
+                                        2 => 'Sekretaris / Bendahara (Mid)',
+                                        3 => 'Anggota Staff (Low)',
+                                    ])
+                                    ->default(3)
+                                    ->required(),
+                                    
+                                Forms\Components\TextInput::make('sort_order')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->label('Urutan Prioritas')
+                                    ->helperText('Angka lebih kecil tampil lebih dulu'),
+                                    
+                                Forms\Components\Toggle::make('is_active')
+                                    ->default(true)
+                                    ->label('Aktifkan Profil')
+                                    ->inline(false),
+                            ]),
+                    ]),
             ]);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            ->reorderable('sort_order') 
+            ->defaultSort('sort_order', 'asc')
             ->columns([
                 Tables\Columns\SpatieMediaLibraryImageColumn::make('photo')
-                    ->circular(),
+                    ->collection('default')
+                    ->circular()
+                    ->label('Foto'),
+                    
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
-                    ->sortable()
-                    ->weight('bold'),
+                    ->weight('bold')
+                    ->label('Nama'),
+                    
                 Tables\Columns\TextColumn::make('position')
+                    ->label('Jabatan')
                     ->searchable(),
-                Tables\Columns\BadgeColumn::make('group_type')
-                    ->colors([
-                        'warning' => 'teras',
-                        'success' => 'division',
-                    ]),
+
+                Tables\Columns\TextColumn::make('group_type')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'teras' => 'warning', 
+                        'division' => 'success', 
+                    })
+                    ->formatStateUsing(fn (string $state): string => ucfirst($state))
+                    ->label('Tipe'),
+
                 Tables\Columns\TextColumn::make('division_name')
                     ->label('Divisi')
-                    ->placeholder('-'),
+                    ->placeholder('-'), 
+                    
+                Tables\Columns\ToggleColumn::make('is_active')
+                    ->label('Aktif'),
             ])
-            ->defaultSort('sort_order', 'asc')
             ->filters([
                 Tables\Filters\SelectFilter::make('group_type')
                     ->options([
-                        'teras' => 'Teras',
+                        'teras' => 'Pengurus Teras',
                         'division' => 'Divisi',
-                    ]),
+                    ])
+                    ->label('Filter Tipe'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

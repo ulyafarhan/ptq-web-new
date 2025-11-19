@@ -1,3 +1,5 @@
+import defaultTheme from 'tailwindcss/defaultTheme'; 
+
 /** @type {import('tailwindcss').Config} */
 export default {
     content: [
@@ -6,8 +8,20 @@ export default {
         './resources/views/**/*.blade.php',
         './resources/js/**/*.vue',
     ],
+
     theme: {
-        extend: {},
+        extend: {
+            fontFamily: {
+                // Font Body: Plus Jakarta Sans
+                sans: ['"Plus Jakarta Sans"', ...defaultTheme.fontFamily.sans],
+                // Font Heading: Playfair Display
+                serif: ['"Playfair Display"', ...defaultTheme.fontFamily.serif],
+            },
+        },
     },
-    plugins: [],
+
+    plugins: [
+        require('@tailwindcss/typography'),
+        require('@tailwindcss/forms'),
+    ],
 };

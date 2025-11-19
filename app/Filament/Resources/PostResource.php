@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class PostResource extends Resource
 {
@@ -40,7 +41,9 @@ class PostResource extends Resource
                                 Forms\Components\RichEditor::make('content')
                                     ->required()
                                     ->columnSpanFull()
-                                    ->fileAttachmentsDirectory('posts/content'),
+                                    ->fileAttachmentsDirectory('posts/content') // Folder penyimpanan gambar
+                                    ->fileAttachmentsVisibility('public') // Agar bisa diakses publik
+                                    ->label('Konten Berita'),
                             ]),
                     ])->columnSpan(2),
 
@@ -69,7 +72,7 @@ class PostResource extends Resource
                                     
                                 // Hidden field untuk user_id
                                 Forms\Components\Hidden::make('user_id')
-                                    ->default(fn () => auth()->id()),
+                                    ->default(fn () => Auth::id()),
                             ]),
                     ])->columnSpan(1),
             ])->columns(3);
@@ -79,28 +82,41 @@ class PostResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\SpatieMediaLibraryImageColumn::make('cover'),
-                
+                Tables\Columns\SpatieMediaLibraryImageColumn::make('cover')
+                    ->collection('default')
+                    ->height(50)
+                    ->label('Cover'),
+                    
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()
-                    ->limit(50),
+                    ->limit(40)
+                    ->description(fn (Post $record): string => $record->slug) // Tampilkan slug di bawah judul
+                    ->label('Judul'),
                     
-                Tables\Columns\BadgeColumn::make('status')
-                    ->colors([
-                        'gray' => 'draft',
-                        'success' => 'published',
-                    ]),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'draft' => 'gray',
+                        'published' => 'success',
+                    })
+                    ->label('Status'),
                     
                 Tables\Columns\TextColumn::make('published_at')
-                    ->dateTime()
-                    ->sortable(),
+                    ->dateTime('d M Y, H:i')
+                    ->sortable()
+                    ->label('Tanggal Tayang'),
             ])
             ->defaultSort('published_at', 'desc')
             ->filters([
-                Tables\Filters\SelectFilter::make('status'),
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'draft' => 'Draft',
+                        'published' => 'Published',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ]);
     }
 
