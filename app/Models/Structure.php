@@ -23,12 +23,11 @@ class Structure extends Model implements HasMedia
 
     public function registerMediaConversions(Media $media = null): void
     {
-        // Optimize for HDD: Auto convert to WebP & Resize
         $this->addMediaConversion('thumb')
             ->width(300)
             ->height(300)
             ->sharpen(10)
             ->format('webp') 
-            ->nonQueued(); // Execute immediately (careful on HDD, but needed for simplicity)
+            ->nonQueued();
     }
 }

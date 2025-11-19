@@ -27,8 +27,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('Sistem UKM PTQ')
-            ->favicon(asset('favicon.ico')) 
+            ->brandName('UKM PTQ') 
+            ->brandLogo(asset('images/logo-ptq.svg')) 
+            ->favicon(asset('favicon.ico'))
             ->sidebarCollapsibleOnDesktop() 
             ->colors([
                 'primary' => '#047857', 

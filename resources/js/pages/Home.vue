@@ -1,11 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import PublicLayout from '@/layouts/PublicLayout.vue';
 
 // Import Shadcn Components
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 // Props dari Backend
@@ -39,12 +39,12 @@ const features = [
     <PublicLayout>
         
         <section class="relative pt-10 pb-20 lg:pt-20 lg:pb-32 overflow-hidden bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative lg:-translate-y-20 md:-translate-y-16 sm:-translate-y-12">
                 <div class="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
                     
                     <div class="max-w-2xl animate-in slide-in-from-left-6 duration-700 fade-in">
                         <Badge variant="secondary" class="mb-6 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 px-4 py-1.5 text-sm font-medium rounded-full border border-emerald-100">
-                            UKM Terbaik Universitas Malikussaleh
+                            UKM Paling Hijau di Universitas Malikussaleh
                         </Badge>
                         
                         <h1 class="text-5xl sm:text-6xl lg:text-7xl font-heading font-bold text-slate-900 leading-[1.1] tracking-tight mb-6">
@@ -75,7 +75,7 @@ const features = [
                         <div class="mt-10 flex items-center gap-4 text-sm text-slate-500 font-medium">
                             <div class="flex -space-x-3">
                                 <div v-for="i in 4" :key="i" class="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
-                                    <img :src="`https://i.pravatar.cc/100?img=${i + 10}`" alt="Member" class="w-full h-full object-cover">
+                                    <img :src="`https://i.pravatar.cc/100?img${i + 10}`" alt="Member" class="w-full h-full object-cover">
                                 </div>
                             </div>
                             <p>Bergabung dengan <span class="text-slate-900 font-bold">500+</span> Mahasiswa</p>
@@ -85,7 +85,7 @@ const features = [
                     <div class="relative lg:h-[600px] w-full flex items-center justify-center animate-in slide-in-from-right-6 duration-1000 fade-in">
                         <div class="absolute inset-0 bg-emerald-100 rounded-full blur-3xl opacity-30 animate-pulse"></div>
                         
-                        <div class="relative grid grid-cols-2 gap-4 w-full max-w-lg transform rotate-[-6deg] hover:rotate-0 transition-transform duration-700 ease-out">
+                        <div class="relative grid grid-cols-2 gap-4 w-full max-w-lg transform rotate-[-6deg] transition-transform duration-700 ease-out mt-12">
                             <div class="space-y-4 mt-12">
                                 <div class="rounded-2xl overflow-hidden shadow-2xl h-48 bg-slate-200">
                                     <img src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover hover:scale-110 transition-transform duration-700">
@@ -132,6 +132,7 @@ const features = [
 
         <section class="py-24 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
                 <div class="flex justify-between items-end mb-12">
                     <div>
                         <h2 class="text-3xl font-heading font-bold text-slate-900">Kabar Terbaru</h2>
@@ -143,29 +144,48 @@ const features = [
                 </div>
 
                 <div v-if="latestPosts.length > 0" class="grid md:grid-cols-3 gap-8">
-                    <div v-for="post in latestPosts" :key="post.id" class="group flex flex-col h-full bg-white rounded-3xl border border-slate-100 overflow-hidden hover:shadow-2xl hover:shadow-emerald-100 transition-all duration-300 hover:-translate-y-1">
-                        <div class="h-56 bg-slate-100 relative overflow-hidden">
+                    
+                    <Card v-for="post in latestPosts" :key="post.id" 
+                        class="group flex flex-col h-full border-slate-100 overflow-hidden hover:shadow-2xl hover:shadow-emerald-100 transition-all duration-300 hover:-translate-y-1 rounded-3xl">
+                        
+                        <div class="h-56 bg-slate-100 relative overflow-hidden flex items-center justify-center shrink-0 rounded-t-3xl">
                             <img v-if="post.cover" :src="post.cover" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                             <div v-else class="w-full h-full flex items-center justify-center bg-emerald-50 text-emerald-200">
                                 <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z"/></svg>
                             </div>
-                            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-slate-800 shadow-sm">
+                            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-slate-800 shadow-sm z-10">
                                 {{ post.published_at }}
                             </div>
                         </div>
 
-                        <div class="p-8 flex flex-col flex-grow">
-                            <h3 class="text-xl font-heading font-bold text-slate-900 mb-3 line-clamp-2 group-hover:text-emerald-600 transition-colors">
-                                <Link :href="route('post.show', post.slug)">{{ post.title }}</Link>
-                            </h3>
-                            <p class="text-slate-500 text-sm leading-relaxed line-clamp-3 mb-6 flex-grow">
-                                {{ post.excerpt }}
-                            </p>
-                            <Link :href="route('post.show', post.slug)" class="inline-flex items-center text-sm font-bold text-emerald-600 group-hover:underline">
-                                Baca Selengkapnya
-                            </Link>
+                        <div class="flex flex-col flex-grow">
+                            
+                            <CardHeader class="px-8 pt-8 pb-4">
+                                <CardTitle class="text-xl font-heading font-bold text-slate-900 leading-tight line-clamp-2 group-hover:text-emerald-600 transition-colors">
+                                    <Link :href="route('post.show', post.slug)">
+                                        {{ post.title }}
+                                    </Link>
+                                </CardTitle>
+                            </CardHeader>
+
+                            <CardContent class="px-8 py-0 flex-grow">
+                                <div class="h-20 overflow-hidden relative">
+                                    <p class="text-slate-500 text-sm leading-relaxed font-sans">
+                                        {{ post.excerpt }}
+                                    </p>
+                                    <div class="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-white via-white/80 to-transparent pointer-events-none"></div>
+                                </div>
+                            </CardContent>
+
+                            <CardFooter class="px-8 pb-8 pt-6 mt-auto">
+                                <Link :href="route('post.show', post.slug)" class="inline-flex items-center text-sm font-bold text-emerald-600 group-hover:underline">
+                                    Baca Selengkapnya
+                                </Link>
+                            </CardFooter>
+                            
                         </div>
-                    </div>
+                    </Card>
+
                 </div>
                 
                 <div v-else class="text-center py-16 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
@@ -177,6 +197,7 @@ const features = [
                         <Link :href="route('posts.index')">Lihat Semua Berita</Link>
                     </Button>
                 </div>
+
             </div>
         </section>
 

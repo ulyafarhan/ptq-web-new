@@ -113,8 +113,8 @@ class ManageSiteSettings extends Page implements HasForms
         // Loop dan simpan ke database (Update or Create)
         foreach ($state as $key => $value) {
             SiteSetting::updateOrCreate(
-                ['key' => $key],   // Cari berdasarkan key
-                ['value' => $value] // Update valuenya
+                ['key' => $key],   
+                ['value' => $value] 
             );
         }
 

@@ -16,8 +16,8 @@ import { Separator } from '@/components/ui/separator';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 
 defineProps({
-    teras: Array,      // Array Pengurus Inti
-    divisions: Object, // Object Grouping Divisi
+    teras: Array,      
+    divisions: Object, 
 });
 
 // Helper Inisial Nama
@@ -138,7 +138,7 @@ const getInitials = (name) => name ? name.split(' ').map((n) => n[0]).join('').s
                                     </div>
 
                                     <Badge v-if="member.level === 1" variant="outline" class="text-[10px] border-amber-300 bg-amber-50 text-amber-700 h-6 px-2 font-bold rounded-md">
-                                        KOORD
+                                        Ketua
                                     </Badge>
                                 </div>
                             </div>

@@ -10,6 +10,10 @@ html {
     scroll-behavior: smooth;
 }
 
+body {
+    background-color: #F5F5F5;
+} 
+
 /* Custom Selection Color */
 ::selection {
     @apply bg-emerald-500/20 text-emerald-900;

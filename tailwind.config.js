@@ -16,6 +16,8 @@ export default {
                 heading: ['"Outfit"', ...defaultTheme.fontFamily.sans],
             },
             colors: {
+                white: '#F5F5F5',
+                black: '#0F172A',
                 brand: {
                     50: '#ecfdf5',
                     100: '#d1fae5',
