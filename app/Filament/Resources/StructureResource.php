@@ -16,6 +16,9 @@ class StructureResource extends Resource
     protected static ?string $model = Structure::class;
     protected static ?string $navigationIcon = 'heroicon-o-users';
     protected static ?string $navigationLabel = 'Pengurus';
+    protected static ?string $modelLabel = 'Pengurus';
+    protected static ?string $pluralModelLabel = 'Struktur UKM';
+    protected static ?string $navigationGroup = 'Profil UKM';
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form

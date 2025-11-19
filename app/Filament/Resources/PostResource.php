@@ -14,9 +14,11 @@ use Illuminate\Support\Facades\Auth;
 
 class PostResource extends Resource
 {
-    protected static ?string $model = Post::class;
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    protected static ?string $navigationLabel = 'Berita & Artikel';
+    protected static ?string $modelLabel = 'Berita';
+    protected static ?string $pluralModelLabel = 'Data Berita';
+    protected static ?string $navigationLabel = 'Berita';
+    protected static ?string $navigationGroup = 'Manajemen Konten';
+    protected static ?string $navigationIcon = 'heroicon-o-newspaper'; 
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form

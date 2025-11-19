@@ -11,6 +11,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Widgets;
+use Illuminate\Support\HtmlString;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -27,10 +28,16 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('UKM PTQ') 
-            ->brandLogo(asset('images/logo-ptq.svg')) 
-            ->favicon(asset('favicon.ico'))
-            ->sidebarCollapsibleOnDesktop() 
+            ->brandLogo(fn () => new HtmlString('
+                <div class="flex items-center gap-x-3">
+                    <img src="' . asset('images/logo-ptq.svg') . '" alt="Logo" class="h-10 w-10 object-contain dark:invert">
+                    <span class="text-xl font-bold text-gray-900 dark:text-white">
+                        UKM PTQ
+                    </span>
+                </div>
+            '))
+            ->favicon(asset('images/logo-ptq.svg'))
+            ->sidebarCollapsibleOnDesktop(false) 
             ->colors([
                 'primary' => '#047857', 
             ])

@@ -13,9 +13,11 @@ use Filament\Tables\Table;
 class MilestoneResource extends Resource
 {
     protected static ?string $model = Milestone::class;
-    protected static ?string $navigationIcon = 'heroicon-o-clock'; // Icon Jam
-    protected static ?string $navigationLabel = 'Sejarah & Milestone';
+    protected static ?string $navigationIcon = 'heroicon-o-clock'; 
     protected static ?string $navigationGroup = 'Manajemen Konten';
+    protected static ?string $modelLabel = 'Sejarah';
+    protected static ?string $pluralModelLabel = 'Sejarah';
+    protected static ?string $navigationLabel = 'Sejarah';
     protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form

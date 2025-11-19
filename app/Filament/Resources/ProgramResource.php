@@ -14,9 +14,11 @@ use Filament\Forms\Get;
 class ProgramResource extends Resource
 {
     protected static ?string $model = Program::class;
-    protected static ?string $navigationIcon = 'heroicon-o-calendar-days'; // Icon Kalender
+    protected static ?string $navigationIcon = 'heroicon-o-calendar-days'; 
     protected static ?string $navigationLabel = 'Program Kerja';
     protected static ?string $navigationGroup = 'Manajemen Konten';
+    protected static ?string $modelLabel = 'Program Kerja';
+    protected static ?string $pluralModelLabel = 'Program Kerja';
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
