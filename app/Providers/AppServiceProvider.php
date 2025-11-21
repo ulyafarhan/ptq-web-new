@@ -32,9 +32,7 @@ class AppServiceProvider extends ServiceProvider
         // 3. Mencegah akses atribut yang tidak ada (Typos)
         Model::shouldBeStrict(!$this->app->environment('production'));
 
-        // KEAMANAN: Unguard hanya boleh jika Anda benar-benar tahu apa yang Anda lakukan.
-        // Default Laravel 12 biasanya aman, tapi kita pastikan fillable terdefinisi di setiap model.
-
+        // OPTIMASI: Mencegah panjang string database
         // Mengatur batas panjang string database (opsional, tapi bagus untuk MySQL lama)
         Schema::defaultStringLength(191);
 

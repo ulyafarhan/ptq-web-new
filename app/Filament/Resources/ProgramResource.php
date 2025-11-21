@@ -34,7 +34,6 @@ class ProgramResource extends Resource
                                     ->label('Nama Program')
                                     ->required()
                                     ->maxLength(150)
-                                    // SECURITY: Hanya huruf, angka, spasi, dan tanda baca aman
                                     ->regex('/^[a-zA-Z0-9\s\-\.\,\'\(\)\&]+$/')
                                     ->validationMessages([
                                         'regex' => 'Judul mengandung karakter terlarang (html tags tidak diizinkan).',
@@ -54,8 +53,7 @@ class ProgramResource extends Resource
                                 Forms\Components\Textarea::make('description')
                                     ->label('Deskripsi Singkat')
                                     ->rows(3)
-                                    ->maxLength(500) // Batasi panjang untuk mencegah spam
-                                    // SECURITY: Bersihkan input dari tag script
+                                    ->maxLength(500) 
                                     ->regex('/^[^<>]*$/') 
                                     ->validationMessages([
                                         'regex' => 'Deskripsi tidak boleh mengandung tag HTML (< >).',
@@ -69,7 +67,10 @@ class ProgramResource extends Resource
                                     ->label('Jadwal Waktu')
                                     ->placeholder('Contoh: Senin, 16.00 WIB')
                                     ->maxLength(100)
-                                    ->regex('/^[a-zA-Z0-9\s\-\.\,\:]+$/'), // Izinkan titik dua (:) untuk jam
+                                    ->regex('/^[a-zA-Z0-9\s\-\.\,\:]+$/') 
+                                    ->validationMessages([
+                                        'regex' => 'Jadwal mengandung karakter terlarang (html tags tidak diizinkan).',
+                                    ]),
                                 
                                 Forms\Components\TextInput::make('location')
                                     ->label('Lokasi')
@@ -82,7 +83,10 @@ class ProgramResource extends Resource
                                     ->placeholder('Status saat ini')
                                     ->visible(fn (Get $get) => $get('type') === 'tahunan')
                                     ->maxLength(50)
-                                    ->regex('/^[a-zA-Z0-9\s]+$/'), // Hanya huruf dan angka
+                                    ->regex('/^[a-zA-Z0-9\s]+$/') 
+                                    ->validationMessages([
+                                        'regex' => 'Status mengandung karakter terlarang (html tags tidak diizinkan).',
+                                    ]),
                             ])->columns(2),
                     ])->columnSpan(2),
 
@@ -90,17 +94,17 @@ class ProgramResource extends Resource
                     ->schema([
                         Forms\Components\Section::make('Media & Status')
                             ->schema([
-                                // SECURITY: Upload Hardening
+                                
                                 SpatieMediaLibraryFileUpload::make('image')
                                     ->label('Gambar / Poster')
                                     ->collection('default')
                                     ->image()
                                     ->imageEditor()
-                                    ->maxSize(5120) // Max 5MB
+                                    ->maxSize(5120) 
                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                                    ->rules(['mimes:jpeg,png,webp']) // Server-side validation
+                                    ->rules(['mimes:jpeg,png,webp']) 
                                     ->directory('programs/posters')
-                                    ->preserveFilenames(false), // Hash filename (PENTING)
+                                    ->preserveFilenames(false), 
                                     
                                 Forms\Components\Toggle::make('is_active')
                                     ->label('Tampilkan di Website')
@@ -119,7 +123,7 @@ class ProgramResource extends Resource
                     ->collection('default')
                     ->label('Poster')
                     ->height(60)
-                    ->circular(), // UI Enhancement
+                    ->circular(), 
                     
                 Tables\Columns\TextColumn::make('title')
                     ->searchable()

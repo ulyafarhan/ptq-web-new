@@ -69,7 +69,7 @@ const getInitials = (name) => name ? name.split(' ').map((n) => n[0]).join('').s
                         <div class="m-3 overflow-hidden rounded-xl h-80 relative bg-slate-100 border border-slate-100">
                             <img v-if="person.photo" 
                                  class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                                 :src="person.photo" 
+                                 :src="person.photo" lazy="loading" 
                                  :alt="person.name" 
                             />
                             <div v-else class="w-full h-full flex flex-col items-center justify-center text-slate-300">

@@ -11,7 +11,7 @@ class ServerStatsWidget extends BaseWidget
     // Refresh otomatis setiap 5 detik agar terasa real-time memantau server
     protected static ?string $pollingInterval = '5s';
     
-    // Urutan widget (Opsional, agar muncul di bawah widget trafik)
+    // Urutan widget 
     protected static ?int $sort = 2; 
 
     protected function getStats(): array
@@ -19,20 +19,20 @@ class ServerStatsWidget extends BaseWidget
         // 1. CEK LATENCY DATABASE (Kecepatan Respon)
         $start = microtime(true);
         try {
-            DB::select('select 1'); // Query ringan tes koneksi
+            DB::select('select 1'); 
             $end = microtime(true);
-            $latency = round(($end - $start) * 1000); // Hitung durasi dalam milidetik (ms)
+            $latency = round(($end - $start) * 1000); 
             
             // Tentukan status berdasarkan kecepatan
             if ($latency < 50) {
                 $statusDb = 'Sangat Cepat';
-                $colorDb = 'success'; // Hijau
+                $colorDb = 'success'; 
             } elseif ($latency < 200) {
                 $statusDb = 'Normal';
-                $colorDb = 'primary'; // Biru/Emerald
+                $colorDb = 'primary'; 
             } else {
                 $statusDb = 'Lemot / Berat';
-                $colorDb = 'danger'; // Merah
+                $colorDb = 'danger'; 
             }
         } catch (\Exception $e) {
             $latency = 0;
@@ -41,8 +41,7 @@ class ServerStatsWidget extends BaseWidget
         }
 
         // 2. CEK DISK SPACE (Penyimpanan)
-        // Catatan: Di shared hosting, kadang ini membaca total disk server, bukan kuota user.
-        $diskPath = '/'; // Path root
+        $diskPath = '/'; 
         $diskTotal = @disk_total_space($diskPath) ?: 1; 
         $diskFree = @disk_free_space($diskPath) ?: 0;
         $diskUsedPercent = round((($diskTotal - $diskFree) / $diskTotal) * 100);

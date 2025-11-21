@@ -5,7 +5,7 @@ namespace App\Filament\Widgets;
 use App\Models\Post;
 use App\Models\Structure;
 use App\Models\User;
-use App\Models\Visit; // Import Model Visit
+use App\Models\Visit; 
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\DB;

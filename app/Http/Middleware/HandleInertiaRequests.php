@@ -38,6 +38,12 @@ class HandleInertiaRequests extends Middleware
                     'whatsapp' => $settings['social_whatsapp'] ?? '#',
                 ]
             ],
+            'menus' => [
+                    ['name' => 'Beranda', 'url' => '/'],
+                    ['name' => 'Profil', 'url' => '/profil'],
+                    ['name' => 'Program', 'url' => '/program-kerja'],
+                    ['name' => 'Berita', 'url' => '/berita'],
+                ]
         ]);
     }
 }

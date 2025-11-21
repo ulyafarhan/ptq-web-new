@@ -1,12 +1,17 @@
 <?php
 
-use App\Http\Middleware\HandleAppearance;
-use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Inertia\Inertia;
+
+// Import Custom Middleware
+use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\TrackTraffic;
+use Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,14 +22,36 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
-            \App\Http\Middleware\HandleInertiaRequests::class,
-            \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
-            \App\Http\Middleware\SecurityHeaders::class, 
-            \App\Http\Middleware\TrackTraffic::class,   
+            HandleInertiaRequests::class,
+            AddLinkHeadersForPreloadedAssets::class,
+            SecurityHeaders::class, 
+            TrackTraffic::class,    
         ]);
 
-        $middleware->throttleApi('60,1'); 
+        $middleware->throttleApi();
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // PERBAIKAN DISINI: Gunakan \Throwable (Global Namespace)
+        $exceptions->respond(function (Response $response, \Throwable $exception, Request $request) {
+            
+            // Logic Error Page
+            if (
+                in_array($response->getStatusCode(), [403, 404, 500, 503]) 
+                && ! $request->is('api/*') 
+            ) {
+                return Inertia::render('Error', [
+                    'status' => $response->getStatusCode(),
+                ])
+                ->toResponse($request)
+                ->setStatusCode($response->getStatusCode());
+            } 
+            
+            if ($response->getStatusCode() === 419) {
+                return back()->with([
+                    'message' => 'Halaman kadaluarsa, silakan muat ulang.',
+                ]);
+            }
+    
+            return $response;
+        });
     })->create();

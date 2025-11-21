@@ -209,7 +209,6 @@ class PageController extends Controller
      */
     public function post(Post $post)
     {
-        // Cegah akses jika status masih draft
         abort_if($post->status !== 'published', 404);
 
         return Inertia::render('Post/Show', [
@@ -220,6 +219,25 @@ class PageController extends Controller
                 'author' => $post->author->name ?? 'Admin',
                 'cover' => $post->getFirstMediaUrl('default', 'banner'), // Gambar ukuran besar
             ]
+        ]);
+    }
+
+    public function postShow($slug)
+    {
+        $post = Post::where('slug', $slug)
+            ->where('status', 'published')
+            ->firstOrFail(); 
+
+        $postData = [
+            'title' => $post->title,
+            'content' => $post->content, 
+            'published_at' => $post->published_at->format('d F Y'),
+            'author' => $post->user->name ?? 'Admin',
+            'cover' => $post->getFirstMediaUrl('default'),
+        ];
+
+        return Inertia::render('Post/Show', [
+            'post' => $postData,
         ]);
     }
 }

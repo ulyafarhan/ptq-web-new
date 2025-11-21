@@ -26,3 +26,7 @@ Route::get('/berita/{post:slug}', [PageController::class, 'post'])->name('post.s
 Route::get('/login', function () {
     return redirect('/admin/login');
 })->name('login');
+
+
+
+

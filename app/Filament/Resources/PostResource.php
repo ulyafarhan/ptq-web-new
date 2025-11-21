@@ -54,7 +54,6 @@ class PostResource extends Resource
                                         'bold', 'italic', 'strike', 'link', 'bulletList', 'orderedList', 
                                         'h2', 'h3', 'blockquote', 'undo', 'redo', 'attachFiles'
                                     ])
-                                    // PERBAIKAN: Hapus method yang tidak valid
                                     ->fileAttachmentsDisk('public')
                                     ->fileAttachmentsDirectory('posts/content')
                                     ->fileAttachmentsVisibility('public'),
