@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link, usePage } from '@inertiajs/vue3'; // Import usePage
+import { Head, Link, usePage } from '@inertiajs/vue3'; 
 import PublicLayout from '@/layouts/PublicLayout.vue';
 
 // Import Shadcn Components

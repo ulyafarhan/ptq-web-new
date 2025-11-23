@@ -3,6 +3,7 @@ import { Head, Link, router } from '@inertiajs/vue3';
 import PublicLayout from '@/layouts/PublicLayout.vue';
 import { ref, watch } from 'vue';
 import { debounce } from 'lodash';
+import { optimizeImage } from '@/lib/utils';
 
 // Import Shadcn Components
 import {
@@ -87,8 +88,11 @@ watch(search, debounce((value) => {
                           class="group flex flex-col h-full bg-white border-slate-200 shadow-[0_2px_10px_rgb(0,0,0,0.05)] hover:shadow-[0_15px_30px_rgb(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-300 rounded-3xl overflow-hidden">
                         
                         <div class="h-56 bg-slate-100 overflow-hidden relative">
-                            <img v-if="post.cover" :src="post.cover" :alt="post.title" 
-                                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:saturate-105">
+                            <img v-if="post.cover" 
+                                :src="post.cover" 
+                                alt="Thumbnail"
+                                loading="lazy"
+                                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:saturate-105">
                             <div v-else class="w-full h-full flex items-center justify-center bg-emerald-50 text-emerald-200">
                                 <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z"/></svg>
                             </div>

@@ -71,7 +71,10 @@ const getInitials = (name) => name ? name.split(' ').map((n) => n[0]).join('').s
 
             <div class="max-w-5xl mx-auto mb-16 animate-in fade-in zoom-in-95 duration-700 delay-150">
                 <div class="relative rounded-[2rem] overflow-hidden shadow-2xl shadow-slate-200/50 bg-slate-200 aspect-video">
-                    <img v-if="post.cover" :src="post.cover" :alt="post.title" class="w-full h-full object-cover">
+                    <img v-if="post.cover" 
+                    :src="post.cover" 
+                    :alt="post.title"
+                    class="w-full h-full object-cover">
                     <div v-else class="w-full h-full flex items-center justify-center text-slate-400">
                         <span class="text-6xl">📰</span>
                     </div>

@@ -18,9 +18,9 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         $admin = User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@ptq.com',
-            'password' => Hash::make('admin123'),
+            'name' => 'Admin UKM PTQ',
+            'email' => 'ptq@unimal.ac.id',
+            'password' => Hash::make('@Infokom070809'),
         ]);
 
         User::factory(5)->create();
@@ -34,7 +34,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         \App\Models\Structure::factory()->create([
-            'name' => 'Wahid',
+            'name' => 'Nurwahid Habibi',
             'position' => 'Wakil Ketua Umum',
             'group_type' => 'teras',
             'level' => 1,
@@ -42,7 +42,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         \App\Models\Structure::factory()->create([
-            'name' => 'Ripan',
+            'name' => 'Ripan Kurniawan',
             'position' => 'Sekretaris Umum',
             'group_type' => 'teras',
             'level' => 1,
@@ -50,7 +50,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         \App\Models\Structure::factory()->create([
-            'name' => 'Yasmin',
+            'name' => 'Yasmin Suci Mauliza',
             'position' => 'Bendahara Umum',
             'group_type' => 'teras',
             'level' => 1,

@@ -100,20 +100,18 @@ const isMobileOpen = ref(false);
 
                     <div class="hidden md:flex items-center gap-4">
                         <div class="h-6 w-px bg-slate-200/60"></div>
-                        <Link href="/admin/login" class="text-sm font-medium text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors px-3 py-2 rounded-full">
-                            Masuk
-                        </Link>
                         
                         <a v-if="site.register_url" :href="site.register_url" target="_blank">
                             <Button class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6 shadow-lg shadow-emerald-200 hover:shadow-emerald-300 transition-all hover:-translate-y-0.5">
                                 Gabung
                             </Button>
                         </a>
-                        <Link v-else href="/register">
+                        
+                        <a v-else href="/register" target="_blank">
                             <Button class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6 shadow-lg shadow-emerald-200 hover:shadow-emerald-300 transition-all hover:-translate-y-0.5">
                                 Gabung
                             </Button>
-                        </Link>
+                        </a>
                     </div>
 
                     <div class="md:hidden">
@@ -165,15 +163,14 @@ const isMobileOpen = ref(false);
                                             Daftar Anggota
                                         </Button>
                                     </a>
-                                    <Link v-else href="/register">
+                                    
+                                    <a v-else href="/register" target="_blank">
                                          <Button class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-12 rounded-xl shadow-lg shadow-emerald-200">
                                             Daftar Anggota
                                         </Button>
-                                    </Link>
-                                    <div class="mt-4 text-center">
-                                        <Link href="/admin" class="text-sm text-slate-500 hover:text-emerald-700 font-medium transition-colors">Login Pengurus</Link>
+                                    </a>
+                                    
                                     </div>
-                                </div>
                             </SheetContent>
                         </Sheet>
                     </div>

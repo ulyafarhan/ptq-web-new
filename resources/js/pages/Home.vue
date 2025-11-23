@@ -111,21 +111,21 @@ const features = [
                     <div class="relative lg:h-[600px] w-full flex items-center justify-center animate-in slide-in-from-right-6 duration-1000 fade-in">
                         <div class="absolute inset-0 bg-emerald-100 rounded-full blur-3xl opacity-30 animate-pulse"></div>
                         
-                        <div class="relative grid grid-cols-2 gap-4 w-full max-w-lg transform lg:rotate-[-10deg] sm:rotate-0 transition-transform duration-700 ease-out mt-12">
+                        <div class="relative grid grid-cols-2 gap-4 w-full max-w-lg transform lg:rotate-[-15deg] sm:rotate-0 transition-transform duration-700 ease-out mt-12">
                             <div class="space-y-4 mt-12">
                                 <div class="rounded-2xl overflow-hidden shadow-2xl h-48 bg-slate-200">
-                                    <img src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover hover:scale-110 transition-transform duration-700">
+                                    <img src="images/image1.jpeg" class="w-full h-full object-cover hover:scale-110 transition-transform duration-700">
                                 </div>
                                 <div class="rounded-2xl overflow-hidden shadow-2xl h-64 bg-slate-200">
-                                    <img src="https://images.unsplash.com/photo-1519834785169-98be25ec3f84?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover hover:scale-110 transition-transform duration-700">
+                                    <img src="images/image2.jpeg" class="w-full h-full object-cover hover:scale-110 transition-transform duration-700">
                                 </div>
                             </div>
                             <div class="space-y-4">
                                 <div class="rounded-2xl overflow-hidden shadow-2xl h-64 bg-slate-200">
-                                    <img src="https://images.unsplash.com/photo-1529070538774-1843cb3265df?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover hover:scale-110 transition-transform duration-700">
+                                    <img src="images/image3.jpeg" class="w-full h-full object-cover hover:scale-110 transition-transform duration-700">
                                 </div>
                                 <div class="rounded-2xl overflow-hidden shadow-2xl h-48 bg-slate-200">
-                                    <img src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover hover:scale-110 transition-transform duration-700">
+                                    <img src="images/image4.jpeg" class="w-full h-full object-cover hover:scale-110 transition-transform duration-700">
                                 </div>
                             </div>
                         </div>
